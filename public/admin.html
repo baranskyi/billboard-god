@@ -336,7 +336,7 @@
             
             // Добавить новые маркеры
             points.forEach(point => {
-                const color = getMarkerColor(point.condition);
+                const color = getConditionColor(point.condition);
                 const marker = L.circleMarker([point.latitude, point.longitude], {
                     radius: 8,
                     fillColor: color,
@@ -371,16 +371,7 @@
             }
         }
 
-        // Получить цвет маркера по состоянию
-        function getMarkerColor(condition) {
-            switch(condition) {
-                case 'good': return '#27AE60';
-                case 'damaged': return '#F39C12';
-                case 'absent': return '#E74C3C';
-                case 'not_working': return '#95A5A6';
-                default: return '#3498DB';
-            }
-        }
+
 
         // Получить название типа
         function getTypeName(type) {
@@ -402,6 +393,17 @@
                 'not_working': 'Не функціонує'
             };
             return conditions[condition] || condition;
+        }
+
+        // Получить цвет для состояния
+        function getConditionColor(condition) {
+            const colors = {
+                'good': '#27AE60',
+                'damaged': '#F39C12', 
+                'absent': '#E74C3C',
+                'not_working': '#95A5A6'
+            };
+            return colors[condition] || '#3498DB';
         }
 
         // Обновить статистику карты

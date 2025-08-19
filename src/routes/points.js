@@ -76,6 +76,12 @@ router.post('/', requireAuth, upload.array('photos', 3), async (req, res) => {
       return res.status(403).json({ error: 'Немає доступу до цієї кампанії' });
     }
 
+    // Валидация состояния
+    const validConditions = ['good', 'damaged', 'absent', 'not_working'];
+    if (condition && !validConditions.includes(condition)) {
+      return res.status(400).json({ error: 'Невірний стан конструкції' });
+    }
+
     // Создать точку
     const point = {
       campaignId,
