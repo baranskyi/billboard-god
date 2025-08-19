@@ -93,25 +93,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Стан</label>
-                    <div class="radio-group">
-                        <div class="radio-item">
-                            <input type="radio" id="condition_good" name="condition" value="good" checked>
-                            <label for="condition_good">Добрий</label>
-                        </div>
-                        <div class="radio-item">
-                            <input type="radio" id="condition_damaged" name="condition" value="damaged">
-                            <label for="condition_damaged">Пошкоджений</label>
-                        </div>
-                        <div class="radio-item">
-                            <input type="radio" id="condition_absent" name="condition" value="absent">
-                            <label for="condition_absent">Відсутній</label>
-                        </div>
-                        <div class="radio-item">
-                            <input type="radio" id="condition_not_working" name="condition" value="not_working">
-                            <label for="condition_not_working">Не функціонує</label>
-                        </div>
-                    </div>
+                    <label for="conditionSelect">Стан</label>
+                    <select id="conditionSelect" name="condition" required>
+                        <option value="good">✅ Добрий</option>
+                        <option value="damaged">⚠️ Пошкоджений</option>
+                        <option value="absent">❌ Відсутній</option>
+                        <option value="not_working">🚫 Не функціонує</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
@@ -406,9 +394,8 @@
                 formData.append('accuracy', currentLocation.accuracy);
                 formData.append('type', form.type.value);
                 
-                // Получить выбранное состояние из радиокнопок
-                const selectedCondition = form.querySelector('input[name="condition"]:checked');
-                formData.append('condition', selectedCondition ? selectedCondition.value : 'good');
+                // Получить выбранное состояние
+                formData.append('condition', form.condition.value);
                 
                 formData.append('comment', form.comment.value);
                 
@@ -448,22 +435,7 @@
             document.getElementById('formError').textContent = '';
             selectedPhotos = [];
             currentLocation = null;
-            
-            // Сбросить радиокнопки на "Добрий"
-            document.getElementById('condition_good').checked = true;
         }
-
-        // Обработчики для радиокнопок (клик по всей области)
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.radio-item').forEach(item => {
-                item.addEventListener('click', function() {
-                    const radio = this.querySelector('input[type="radio"]');
-                    if (radio) {
-                        radio.checked = true;
-                    }
-                });
-            });
-        });
 
         // Выход
         async function logout() {
