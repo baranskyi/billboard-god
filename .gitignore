@@ -4,9 +4,11 @@ node_modules/
 # Environment variables
 .env
 
-# Data files
-data/
-uploads/
+# Data files (keep structure but ignore content)
+data/*
+!data/.gitkeep
+uploads/*
+!uploads/.gitkeep
 
 # Logs
 logs/

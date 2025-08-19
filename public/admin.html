@@ -77,6 +77,7 @@
             <button class="btn btn-secondary" onclick="showTab('map')" id="mapTab">Карта</button>
             <button class="btn btn-secondary" onclick="showTab('campaigns')" id="campaignsTab">Кампанії</button>
             <button class="btn btn-secondary" onclick="showTab('users')" id="usersTab">Користувачі</button>
+            <button class="btn btn-secondary" onclick="showTab('backup')" id="backupTab">Бэкапи</button>
         </div>
 
         <!-- Вкладка карты -->
@@ -161,6 +162,40 @@
             </div>
             
             <div id="usersList"></div>
+        </div>
+
+        <!-- Вкладка бэкапов -->
+        <div id="backupTabContent" class="tab-content" style="display: none;">
+            <div class="card">
+                <h3>Управління бэкапами</h3>
+                <p>Бэкапи захищають ваші дані від втрати при оновленнях системи.</p>
+                
+                <div class="mb-3">
+                    <button class="btn btn-primary" onclick="createBackup()">
+                        📦 Створити бэкап зараз
+                    </button>
+                    <button class="btn btn-secondary" onclick="loadBackupList()">
+                        🔄 Оновити список
+                    </button>
+                </div>
+                
+                <div id="backupStatus" class="mb-3"></div>
+                
+                <h4>Доступні бэкапи:</h4>
+                <div id="backupsList">
+                    <p>Завантаження списку бэкапів...</p>
+                </div>
+            </div>
+            
+            <div class="card mt-3">
+                <h4>ℹ️ Інформація про бэкапи</h4>
+                <ul>
+                    <li><strong>Автоматичні бэкапи:</strong> Створюються кожні 6 годин</li>
+                    <li><strong>Що зберігається:</strong> Користувачі, кампанії, точки, фотографії</li>
+                    <li><strong>Зберігається:</strong> 10 останніх бэкапів</li>
+                    <li><strong>Розташування:</strong> Папка /backups на сервері</li>
+                </ul>
+            </div>
         </div>
     </main>
 
@@ -599,6 +634,11 @@
                     map.invalidateSize();
                 }, 100);
             }
+            
+            // Загрузить список бэкапов при переходе на вкладку
+            if (tab === 'backup') {
+                loadBackupList();
+            }
         }
 
         // Управление кампаниями
@@ -757,6 +797,110 @@
                 errorMsg.textContent = 'Помилка з\'єднання';
             }
         });
+
+        // Управление бэкапами
+        async function createBackup() {
+            const statusDiv = document.getElementById('backupStatus');
+            statusDiv.innerHTML = '<span style="color: var(--warning-color)">⏳ Створення бэкапа...</span>';
+            
+            try {
+                const response = await fetch('/api/backup/create', { method: 'POST' });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.innerHTML = '<span style="color: var(--success-color)">✅ Бэкап створено успішно!</span>';
+                    loadBackupList();
+                } else {
+                    statusDiv.innerHTML = `<span style="color: var(--danger-color)">❌ ${data.error}</span>`;
+                }
+            } catch (err) {
+                statusDiv.innerHTML = '<span style="color: var(--danger-color)">❌ Помилка створення бэкапа</span>';
+            }
+        }
+
+        async function loadBackupList() {
+            try {
+                const response = await fetch('/api/backup/list');
+                const backups = await response.json();
+                
+                const listDiv = document.getElementById('backupsList');
+                
+                if (backups.length === 0) {
+                    listDiv.innerHTML = '<p>Немає доступних бэкапів</p>';
+                    return;
+                }
+                
+                listDiv.innerHTML = `
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Файл бэкапа</th>
+                                    <th>Дата створення</th>
+                                    <th>Дії</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${backups.map(backup => {
+                                    const date = backup.match(/backup-(.+)\.tar\.gz/)?.[1]?.replace(/[-T]/g, ' ').replace(/\..+/, '') || 'Невідома дата';
+                                    return `
+                                        <tr>
+                                            <td>${backup}</td>
+                                            <td>${date}</td>
+                                            <td>
+                                                <button class="btn btn-secondary" onclick="downloadBackup('${backup}')">
+                                                    💾 Завантажити
+                                                </button>
+                                                <button class="btn btn-warning" onclick="restoreBackup('${backup}')" 
+                                                        style="margin-left: 10px;">
+                                                    🔄 Відновити
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    `;
+                                }).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } catch (err) {
+                document.getElementById('backupsList').innerHTML = '<p style="color: var(--danger-color)">Помилка завантаження списку бэкапів</p>';
+            }
+        }
+
+        function downloadBackup(filename) {
+            window.open(`/api/backup/download/${filename}`, '_blank');
+        }
+
+        async function restoreBackup(filename) {
+            if (!confirm(`Ви впевнені, що хочете відновити дані з бэкапа "${filename}"?\n\nПоточні дані будуть замінені!`)) {
+                return;
+            }
+            
+            const statusDiv = document.getElementById('backupStatus');
+            statusDiv.innerHTML = '<span style="color: var(--warning-color)">⏳ Відновлення з бэкапа...</span>';
+            
+            try {
+                const response = await fetch('/api/backup/restore', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ backupFile: `./backups/${filename}` })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    statusDiv.innerHTML = '<span style="color: var(--success-color)">✅ Дані відновлено! Перезавантажте сторінку.</span>';
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000);
+                } else {
+                    statusDiv.innerHTML = `<span style="color: var(--danger-color)">❌ ${data.error}</span>`;
+                }
+            } catch (err) {
+                statusDiv.innerHTML = '<span style="color: var(--danger-color)">❌ Помилка відновлення</span>';
+            }
+        }
 
         // Выход
         async function logout() {

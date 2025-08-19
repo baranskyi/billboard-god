@@ -2,6 +2,7 @@ const express = require('express');
 const session = require('express-session');
 const path = require('path');
 const fs = require('fs').promises;
+const BackupManager = require('./scripts/backup');
 require('dotenv').config();
 
 const app = express();
@@ -80,11 +81,13 @@ const authRoutes = require('./src/routes/auth');
 const campaignRoutes = require('./src/routes/campaigns');
 const pointRoutes = require('./src/routes/points');
 const userRoutes = require('./src/routes/users');
+const backupRoutes = require('./src/routes/backup');
 
 app.use('/api/auth', authRoutes);
 app.use('/api/campaigns', campaignRoutes);
 app.use('/api/points', pointRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/backup', backupRoutes);
 
 // Serve HTML pages
 app.get('/', (req, res) => {
@@ -105,12 +108,27 @@ app.use((err, req, res, next) => {
 
 // Start server
 async function start() {
+  // Создать автобэкап перед запуском
+  const backup = new BackupManager();
+  await backup.autoBackup();
+  
   await initializeDataDirs();
   await initializeAdmin();
+  
+  // Настроить периодические бэкапы (каждые 6 часов)
+  setInterval(async () => {
+    try {
+      await backup.createBackup();
+      console.log('📦 Автоматический бэкап создан');
+    } catch (err) {
+      console.error('⚠️ Ошибка автобэкапа:', err);
+    }
+  }, 6 * 60 * 60 * 1000); // 6 часов
   
   app.listen(PORT, () => {
     console.log(`Billboard Tracker запущено на порту ${PORT}`);
     console.log(`Відкрийте http://localhost:${PORT} у браузері`);
+    console.log(`📦 Автобэкап налаштовано (кожні 6 годин)`);
   });
 }
 
