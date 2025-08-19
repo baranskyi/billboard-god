@@ -31,7 +31,7 @@
 
 ### 1. Клонування репозиторію
 ```bash
-git clone <repository-url>
+git clone https://github.com/baranskyi/billboard-tracker.git
 cd billboard-tracker
 ```
 
