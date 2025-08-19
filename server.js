@@ -10,8 +10,18 @@ const PORT = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
-app.use('/uploads', express.static('uploads'));
+// Disable caching for HTML/CSS/JS to avoid stale UI on mobile
+app.use(express.static('public', {
+  etag: false,
+  lastModified: false,
+  setHeaders: (res, path) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+    res.setHeader('Surrogate-Control', 'no-store');
+  }
+}));
+app.use('/uploads', express.static('uploads', { etag: false, lastModified: false }));
 
 // Session configuration
 app.use(session({
