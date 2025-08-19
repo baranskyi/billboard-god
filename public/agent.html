@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Агент - Billboard Tracker</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <!-- Хедер -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <h1>Billboard Tracker</h1>
+                <div class="header-user">
+                    <span id="userName"></span>
+                    <button class="btn btn-logout" onclick="logout()">Вийти</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Основной контент -->
+    <main class="container">
+        <div class="stats" id="stats">
+            <!-- Статистика будет загружена динамически -->
+        </div>
+
+        <div id="campaignsList">
+            <!-- Список кампаний будет загружен динамически -->
+        </div>
+    </main>
+
+    <!-- Мобильная навигация -->
+    <nav class="mobile-nav">
+        <div class="mobile-nav-items">
+            <a href="#" class="mobile-nav-item active" onclick="showCampaigns()">
+                <span class="mobile-nav-icon">📋</span>
+                Кампанії
+            </a>
+            <a href="#" class="mobile-nav-item" onclick="showAddPoint()">
+                <span class="mobile-nav-icon">📍</span>
+                Додати
+            </a>
+        </div>
+    </nav>
+
+    <!-- Модальное окно добавления точки -->
+    <div id="addPointModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Додати носій</h2>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            
+            <form id="addPointForm">
+                <div class="form-group">
+                    <label for="campaignSelect">Кампанія</label>
+                    <select id="campaignSelect" name="campaignId" required>
+                        <option value="">Оберіть кампанію</option>
+                    </select>
+                </div>
+
+                <div class="photo-upload">
+                    <label>Фотографії (2-3 шт)</label>
+                    <div class="photo-upload-area" onclick="document.getElementById('photoInput').click()">
+                        <p>📷 Натисніть для завантаження фото</p>
+                        <p style="font-size: 12px; color: #7f8c8d;">JPG або PNG до 10MB</p>
+                    </div>
+                    <input type="file" id="photoInput" name="photos" accept="image/*" multiple style="display: none;">
+                    <div id="photoPreview" class="photo-preview"></div>
+                </div>
+
+                <div class="form-group">
+                    <label>📍 Локація</label>
+                    <div id="locationStatus" class="mb-1"></div>
+                    <button type="button" class="btn btn-secondary" onclick="getCurrentLocation()">
+                        Визначити місцезнаходження
+                    </button>
+                    <input type="hidden" id="latitude" name="latitude">
+                    <input type="hidden" id="longitude" name="longitude">
+                    <input type="hidden" id="accuracy" name="accuracy">
+                </div>
+
+                <div class="form-group">
+                    <label for="typeSelect">Тип конструкції</label>
+                    <select id="typeSelect" name="type" required>
+                        <option value="billboard">Білборд</option>
+                        <option value="citylights">CityLights</option>
+                        <option value="metro">Метро</option>
+                        <option value="other">Інше</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Стан</label>
+                    <div>
+                        <label>
+                            <input type="radio" name="condition" value="good" checked> Добрий
+                        </label>
+                        <label style="margin-left: 15px;">
+                            <input type="radio" name="condition" value="damaged"> Пошкоджений
+                        </label>
+                        <label style="margin-left: 15px;">
+                            <input type="radio" name="condition" value="absent"> Відсутній
+                        </label>
+                        <label style="margin-left: 15px;">
+                            <input type="radio" name="condition" value="not_working"> Не функціонує
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="comment">Коментар (опціонально)</label>
+                    <textarea id="comment" name="comment" rows="3"></textarea>
+                </div>
+
+                <div id="formError" class="error-message"></div>
+
+                <button type="submit" class="btn btn-primary btn-block">
+                    <span class="btn-text">Зберегти</span>
+                    <span class="btn-loading" style="display:none;">
+                        <span class="spinner"></span> Збереження...
+                    </span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let campaigns = [];
+        let selectedPhotos = [];
+        let currentLocation = null;
+
+        // Инициализация
+        async function init() {
+            try {
+                // Получить данные пользователя
+                const userResponse = await fetch('/api/auth/me');
+                if (!userResponse.ok) {
+                    window.location.href = '/';
+                    return;
+                }
+                
+                const userData = await userResponse.json();
+                currentUser = userData.user;
+                document.getElementById('userName').textContent = currentUser.name;
+                
+                // Загрузить кампании
+                await loadCampaigns();
+                
+            } catch (err) {
+                console.error('Init error:', err);
+            }
+        }
+
+        // Загрузить кампании
+        async function loadCampaigns() {
+            try {
+                const response = await fetch('/api/campaigns');
+                if (response.ok) {
+                    campaigns = await response.json();
+                    displayCampaigns();
+                    updateCampaignSelect();
+                    updateStats();
+                }
+            } catch (err) {
+                console.error('Load campaigns error:', err);
+            }
+        }
+
+        // Отобразить кампании
+        function displayCampaigns() {
+            const container = document.getElementById('campaignsList');
+            
+            if (campaigns.length === 0) {
+                container.innerHTML = '<p class="text-center">Немає доступних кампаній</p>';
+                return;
+            }
+            
+            container.innerHTML = campaigns.map(campaign => `
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">${campaign.name}</h3>
+                        <span class="card-meta">ID: ${campaign.id.substring(0, 8)}</span>
+                    </div>
+                    <div class="campaign-stats">
+                        <p>Мої точки: <strong id="points-${campaign.id}">0</strong></p>
+                    </div>
+                    <button class="btn btn-primary" onclick="selectCampaignAndAdd('${campaign.id}')">
+                        Додати носій
+                    </button>
+                </div>
+            `).join('');
+            
+            // Загрузить статистику для каждой кампании
+            campaigns.forEach(campaign => {
+                loadCampaignPoints(campaign.id);
+            });
+        }
+
+        // Загрузить точки кампании
+        async function loadCampaignPoints(campaignId) {
+            try {
+                const response = await fetch(`/api/points/campaign/${campaignId}`);
+                if (response.ok) {
+                    const points = await response.json();
+                    const element = document.getElementById(`points-${campaignId}`);
+                    if (element) {
+                        element.textContent = points.length;
+                    }
+                }
+            } catch (err) {
+                console.error('Load points error:', err);
+            }
+        }
+
+        // Обновить статистику
+        function updateStats() {
+            const totalCampaigns = campaigns.length;
+            const activeCampaigns = campaigns.filter(c => c.status === 'active').length;
+            
+            document.getElementById('stats').innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${totalCampaigns}</div>
+                    <div class="stat-label">Всього кампаній</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${activeCampaigns}</div>
+                    <div class="stat-label">Активних</div>
+                </div>
+            `;
+        }
+
+        // Обновить выбор кампаний
+        function updateCampaignSelect() {
+            const select = document.getElementById('campaignSelect');
+            select.innerHTML = '<option value="">Оберіть кампанію</option>' + 
+                campaigns.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+
+        // Показать форму добавления
+        function showAddPoint() {
+            document.getElementById('addPointModal').classList.add('active');
+            getCurrentLocation();
+        }
+
+        // Выбрать кампанию и добавить
+        function selectCampaignAndAdd(campaignId) {
+            document.getElementById('campaignSelect').value = campaignId;
+            showAddPoint();
+        }
+
+        // Закрыть модальное окно
+        function closeModal() {
+            document.getElementById('addPointModal').classList.remove('active');
+            resetForm();
+        }
+
+        // Получить текущую геолокацию
+        function getCurrentLocation() {
+            const status = document.getElementById('locationStatus');
+            status.innerHTML = '<span style="color: var(--warning-color)">⏳ Визначення місцезнаходження...</span>';
+            
+            if (!navigator.geolocation) {
+                status.innerHTML = '<span style="color: var(--danger-color)">❌ Геолокація не підтримується</span>';
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    currentLocation = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        accuracy: position.coords.accuracy
+                    };
+                    
+                    document.getElementById('latitude').value = currentLocation.latitude;
+                    document.getElementById('longitude').value = currentLocation.longitude;
+                    document.getElementById('accuracy').value = currentLocation.accuracy;
+                    
+                    status.innerHTML = `
+                        <span style="color: var(--success-color)">✅ Місцезнаходження визначено</span>
+                        <br><small>Точність: ±${Math.round(currentLocation.accuracy)}м</small>
+                    `;
+                },
+                (error) => {
+                    let errorMsg = 'Помилка визначення місцезнаходження';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMsg = 'Доступ до геолокації заборонено';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMsg = 'Інформація про місцезнаходження недоступна';
+                            break;
+                        case error.TIMEOUT:
+                            errorMsg = 'Час очікування вичерпано';
+                            break;
+                    }
+                    status.innerHTML = `<span style="color: var(--danger-color)">❌ ${errorMsg}</span>`;
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        // Обработка выбора фото
+        document.getElementById('photoInput').addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            const preview = document.getElementById('photoPreview');
+            
+            // Ограничение на 3 фото
+            if (selectedPhotos.length + files.length > 3) {
+                alert('Можна завантажити максимум 3 фото');
+                return;
+            }
+            
+            files.forEach(file => {
+                if (file.size > 10 * 1024 * 1024) {
+                    alert(`Файл ${file.name} занадто великий (максимум 10MB)`);
+                    return;
+                }
+                
+                selectedPhotos.push(file);
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const div = document.createElement('div');
+                    div.className = 'photo-preview-item';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview">
+                        <button class="photo-remove" onclick="removePhoto(${selectedPhotos.length - 1})">&times;</button>
+                    `;
+                    preview.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        // Удалить фото
+        function removePhoto(index) {
+            selectedPhotos.splice(index, 1);
+            updatePhotoPreview();
+        }
+
+        // Обновить превью фото
+        function updatePhotoPreview() {
+            const preview = document.getElementById('photoPreview');
+            preview.innerHTML = '';
+            
+            selectedPhotos.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const div = document.createElement('div');
+                    div.className = 'photo-preview-item';
+                    div.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview">
+                        <button class="photo-remove" onclick="removePhoto(${index})">&times;</button>
+                    `;
+                    preview.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Отправка формы
+        document.getElementById('addPointForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnLoading = submitBtn.querySelector('.btn-loading');
+            const errorMsg = document.getElementById('formError');
+            
+            // Валидация
+            if (!currentLocation) {
+                errorMsg.textContent = 'Спочатку визначте місцезнаходження';
+                return;
+            }
+            
+            if (selectedPhotos.length < 2) {
+                errorMsg.textContent = 'Додайте мінімум 2 фото';
+                return;
+            }
+            
+            // Показать загрузку
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline-block';
+            submitBtn.disabled = true;
+            errorMsg.textContent = '';
+            
+            try {
+                const formData = new FormData();
+                formData.append('campaignId', form.campaignId.value);
+                formData.append('latitude', currentLocation.latitude);
+                formData.append('longitude', currentLocation.longitude);
+                formData.append('accuracy', currentLocation.accuracy);
+                formData.append('type', form.type.value);
+                formData.append('condition', form.condition.value);
+                formData.append('comment', form.comment.value);
+                
+                // Добавить фото
+                selectedPhotos.forEach(photo => {
+                    formData.append('photos', photo);
+                });
+                
+                const response = await fetch('/api/points', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    closeModal();
+                    alert('Носій успішно додано!');
+                    loadCampaigns(); // Обновить статистику
+                } else {
+                    const data = await response.json();
+                    errorMsg.textContent = data.error || 'Помилка збереження';
+                }
+                
+            } catch (err) {
+                errorMsg.textContent = 'Помилка з\'єднання з сервером';
+            } finally {
+                btnText.style.display = 'inline-block';
+                btnLoading.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Сброс формы
+        function resetForm() {
+            document.getElementById('addPointForm').reset();
+            document.getElementById('photoPreview').innerHTML = '';
+            document.getElementById('locationStatus').innerHTML = '';
+            document.getElementById('formError').textContent = '';
+            selectedPhotos = [];
+            currentLocation = null;
+        }
+
+        // Выход
+        async function logout() {
+            try {
+                await fetch('/api/auth/logout', { method: 'POST' });
+                window.location.href = '/';
+            } catch (err) {
+                console.error('Logout error:', err);
+            }
+        }
+
+        // Показать список кампаний
+        function showCampaigns() {
+            // Переключить активную вкладку
+            document.querySelectorAll('.mobile-nav-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            event.target.closest('.mobile-nav-item').classList.add('active');
+        }
+
+        // Инициализация при загрузке
+        init();
+    </script>
+</body>
+</html>

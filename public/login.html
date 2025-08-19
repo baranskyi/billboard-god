@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Вхід - Billboard Tracker</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="login-page">
+    <div class="container">
+        <div class="login-box">
+            <div class="logo">
+                <h1>Billboard Tracker</h1>
+                <p>Система моніторингу зовнішньої реклами</p>
+            </div>
+            
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="username">Логін</label>
+                    <input type="text" id="username" name="username" required 
+                           placeholder="Введіть ваш логін" autocomplete="username">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Пароль</label>
+                    <input type="password" id="password" name="password" required 
+                           placeholder="Введіть пароль" autocomplete="current-password">
+                </div>
+                
+                <div id="errorMessage" class="error-message"></div>
+                
+                <button type="submit" class="btn btn-primary btn-block">
+                    <span class="btn-text">Увійти</span>
+                    <span class="btn-loading" style="display:none;">
+                        <span class="spinner"></span> Вхід...
+                    </span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const form = e.target;
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const btnText = submitBtn.querySelector('.btn-text');
+            const btnLoading = submitBtn.querySelector('.btn-loading');
+            const errorMsg = document.getElementById('errorMessage');
+            
+            // Показать загрузку
+            btnText.style.display = 'none';
+            btnLoading.style.display = 'inline-block';
+            submitBtn.disabled = true;
+            errorMsg.textContent = '';
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: form.username.value,
+                        password: form.password.value
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    // Успешный вход - перенаправить
+                    window.location.href = '/';
+                } else {
+                    // Показать ошибку
+                    errorMsg.textContent = data.error || 'Помилка входу';
+                }
+                
+            } catch (err) {
+                errorMsg.textContent = 'Помилка з\'єднання з сервером';
+            } finally {
+                // Вернуть кнопку в исходное состояние
+                btnText.style.display = 'inline-block';
+                btnLoading.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
