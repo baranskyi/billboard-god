@@ -41,15 +41,26 @@ async function initializeDataDirs() {
     'data/users',
     'data/campaigns', 
     'data/points',
-    'uploads'
+    'uploads',
+    'backups'
   ];
   
   for (const dir of dirs) {
     try {
       await fs.mkdir(dir, { recursive: true });
+      console.log(`📁 Директорія створена: ${dir}`);
     } catch (err) {
       console.error(`Error creating directory ${dir}:`, err);
     }
+  }
+  
+  // Проверить существование данных
+  try {
+    const dataFiles = await fs.readdir('data/users');
+    const hasData = dataFiles.some(file => file.endsWith('.json'));
+    console.log(`💾 Існуючі дані: ${hasData ? 'Знайдено' : 'Відсутні'}`);
+  } catch {
+    console.log('💾 Існуючі дані: Відсутні');
   }
 }
 
