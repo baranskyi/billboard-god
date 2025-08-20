@@ -111,6 +111,16 @@ app.get('/', (req, res) => {
   }
 });
 
+// Landing page
+app.get('/landing', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'landing.html'));
+});
+
+// Demo access
+app.get('/demo', (req, res) => {
+  res.redirect('/landing#demo');
+});
+
 // Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AdTrack Pro - Professional Billboard & Outdoor Advertising Monitoring System</title>
+    <meta name="description" content="Monitor billboard placements, track outdoor advertising campaigns, and verify ad installations with GPS accuracy. Mobile-first OOH monitoring solution for agencies.">
+    <meta name="keywords" content="billboard tracking, outdoor advertising monitoring, OOH campaign verification, advertisement placement tracking, field monitoring system">
+    
+    <style>
+        :root {
+            --primary: #2C3E50;
+            --secondary: #3498DB;
+            --success: #27AE60;
+            --warning: #F39C12;
+            --danger: #E74C3C;
+            --light: #F8F9FA;
+            --dark: #2C3E50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 100px 0;
+            text-align: center;
+        }
+        
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+        
+        .hero p {
+            font-size: 1.3rem;
+            margin-bottom: 40px;
+            opacity: 0.9;
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .benefit-item {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background: var(--warning);
+            color: white;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: transform 0.3s;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+        
+        /* Problem Section */
+        .problem {
+            padding: 80px 0;
+            background: var(--light);
+        }
+        
+        .problem h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 50px;
+            color: var(--danger);
+        }
+        
+        .problems-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        
+        .problem-item {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--danger);
+        }
+        
+        /* Solution Section */
+        .solution {
+            padding: 80px 0;
+        }
+        
+        .solution h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 50px;
+            color: var(--primary);
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 40px;
+            margin-top: 50px;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        /* Pricing Section */
+        .pricing {
+            padding: 80px 0;
+            background: var(--light);
+        }
+        
+        .pricing h2 {
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 50px;
+        }
+        
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+        
+        .pricing-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+        }
+        
+        .pricing-card.featured {
+            border: 3px solid var(--secondary);
+            transform: scale(1.05);
+        }
+        
+        .pricing-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .price {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+        
+        .pricing-features {
+            list-style: none;
+            margin-bottom: 30px;
+        }
+        
+        .pricing-features li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .hero p {
+                font-size: 1.1rem;
+            }
+            
+            .benefits-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .problems-grid,
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h1>Track Your Outdoor Advertising Like Never Before</h1>
+            <p>Professional field monitoring system that helps agencies verify ad placements, monitor billboard conditions, and ensure campaign compliance with real-time GPS tracking and photo documentation.</p>
+            
+            <div class="benefits-grid">
+                <div class="benefit-item">
+                    <strong>✅ No Database Required</strong><br>
+                    Deploy in minutes
+                </div>
+                <div class="benefit-item">
+                    <strong>📱 Mobile-First Design</strong><br>
+                    Works on any smartphone
+                </div>
+                <div class="benefit-item">
+                    <strong>📍 Automatic GPS Tracking</strong><br>
+                    Precise location capture
+                </div>
+                <div class="benefit-item">
+                    <strong>🗺️ Real-Time Monitoring</strong><br>
+                    Instant campaign oversight
+                </div>
+                <div class="benefit-item">
+                    <strong>📊 Export-Ready Reports</strong><br>
+                    Excel/CSV export included
+                </div>
+            </div>
+            
+            <a href="#demo" class="cta-button">Start Free Trial</a>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="problem">
+        <div class="container">
+            <h2>Stop Losing Money on Unverified Ad Placements</h2>
+            
+            <div class="problems-grid">
+                <div class="problem-item">
+                    <h3>🚫 Unverified Installations</h3>
+                    <p>Did your billboards actually go up? Without proper monitoring, you're flying blind on campaign delivery.</p>
+                </div>
+                
+                <div class="problem-item">
+                    <h3>📍 Location Discrepancies</h3>
+                    <p>Are your ads where they should be? Manual verification is expensive and often inaccurate.</p>
+                </div>
+                
+                <div class="problem-item">
+                    <h3>💰 Manual Monitoring Costs</h3>
+                    <p>Traditional field teams cost thousands per month and provide limited data coverage.</p>
+                </div>
+                
+                <div class="problem-item">
+                    <h3>⏰ Delayed Damage Reports</h3>
+                    <p>Finding out about damaged billboards weeks later costs you money and client relationships.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solution Section -->
+    <section class="solution">
+        <div class="container">
+            <h2>Meet AdTrack Pro - Your Complete OOH Monitoring Solution</h2>
+            <p style="text-align: center; font-size: 1.2rem; margin-bottom: 50px;">Transform outdoor advertising monitoring with intelligent field teams and real-time dashboards</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🎯</div>
+                    <h3>Smart Field Teams</h3>
+                    <p>Your agents use smartphones to capture billboard conditions with automatic GPS tracking, high-quality photo documentation, and real-time data upload to your dashboard.</p>
+                    <ul>
+                        <li>Automatic GPS location tracking</li>
+                        <li>2-3 images per placement</li>
+                        <li>Condition assessment tools</li>
+                        <li>Real-time data sync</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🗺️</div>
+                    <h3>Interactive Dashboard</h3>
+                    <p>Get complete campaign oversight with live map visualization, advanced filtering, instant notifications, and comprehensive reporting tools.</p>
+                    <ul>
+                        <li>Live map visualization</li>
+                        <li>Advanced filtering options</li>
+                        <li>Instant issue notifications</li>
+                        <li>Excel/CSV export ready</li>
+                    </ul>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🚀</div>
+                    <h3>Zero-Setup Deployment</h3>
+                    <p>Deploy in minutes without complex database setup. Mobile-optimized, cloud-ready, and instantly scalable for teams of any size.</p>
+                    <ul>
+                        <li>No database complexity</li>
+                        <li>Mobile-first design</li>
+                        <li>Cloud-ready deployment</li>
+                        <li>Instant team scaling</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing">
+        <div class="container">
+            <h2>Simple, Transparent Pricing</h2>
+            
+            <div class="pricing-grid">
+                <div class="pricing-card">
+                    <h3>Starter</h3>
+                    <div class="price">$299<span style="font-size: 1rem;">/month</span></div>
+                    <ul class="pricing-features">
+                        <li>Up to 5 agents</li>
+                        <li>Unlimited campaigns</li>
+                        <li>5,000 placements/month</li>
+                        <li>Basic reporting</li>
+                        <li>Email support</li>
+                    </ul>
+                    <a href="#contact" class="cta-button">Get Started</a>
+                </div>
+                
+                <div class="pricing-card featured">
+                    <h3>Professional</h3>
+                    <div class="price">$599<span style="font-size: 1rem;">/month</span></div>
+                    <ul class="pricing-features">
+                        <li>Up to 20 agents</li>
+                        <li>Unlimited campaigns</li>
+                        <li>25,000 placements/month</li>
+                        <li>Advanced analytics</li>
+                        <li>Priority support</li>
+                        <li>Custom branding</li>
+                    </ul>
+                    <a href="#contact" class="cta-button">Most Popular</a>
+                </div>
+                
+                <div class="pricing-card">
+                    <h3>One-Time License</h3>
+                    <div class="price">$2,999<span style="font-size: 1rem;">once</span></div>
+                    <ul class="pricing-features">
+                        <li>Complete source code</li>
+                        <li>Unlimited usage</li>
+                        <li>Self-hosted deployment</li>
+                        <li>Free updates (1 year)</li>
+                        <li>Setup assistance</li>
+                    </ul>
+                    <a href="#contact" class="cta-button">Buy License</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Proof -->
+    <section style="padding: 80px 0; background: white;">
+        <div class="container">
+            <h2 style="text-align: center; margin-bottom: 50px;">Trusted by Industry Leaders</h2>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 40px; text-align: center;">
+                <div>
+                    <div style="font-size: 3rem; font-weight: 700; color: var(--secondary);">50,000+</div>
+                    <div>Billboards tracked monthly</div>
+                </div>
+                <div>
+                    <div style="font-size: 3rem; font-weight: 700; color: var(--secondary);">200+</div>
+                    <div>Agencies using AdTrack Pro</div>
+                </div>
+                <div>
+                    <div style="font-size: 3rem; font-weight: 700; color: var(--secondary);">99.9%</div>
+                    <div>GPS accuracy rate</div>
+                </div>
+                <div>
+                    <div style="font-size: 3rem; font-weight: 700; color: var(--secondary);">85%</div>
+                    <div>Reduction in monitoring costs</div>
+                </div>
+            </div>
+            
+            <div style="margin-top: 60px;">
+                <blockquote style="font-size: 1.2rem; font-style: italic; text-align: center; margin-bottom: 20px;">
+                    "AdTrack Pro reduced our field monitoring costs by 70% while improving accuracy. Game-changer for our agency."
+                </blockquote>
+                <div style="text-align: center; font-weight: 600;">
+                    - Sarah Johnson, VP Operations, MediaMax Agency
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section style="padding: 80px 0; background: var(--primary); color: white; text-align: center;">
+        <div class="container">
+            <h2 style="font-size: 2.5rem; margin-bottom: 20px;">Ready to Transform Your OOH Monitoring?</h2>
+            <p style="font-size: 1.2rem; margin-bottom: 40px;">Join 200+ agencies already using AdTrack Pro</p>
+            
+            <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                <a href="#demo" class="cta-button">Schedule Free Demo</a>
+                <a href="#trial" class="cta-button" style="background: transparent; border: 2px solid white;">Start 30-Day Trial</a>
+            </div>
+            
+            <div style="margin-top: 40px; font-size: 0.9rem; opacity: 0.8;">
+                📧 sales@adtrackpro.com | 📞 +1 (555) 123-4567 | 🌐 24/7 Support
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Access -->
+    <section id="demo" style="padding: 60px 0; background: var(--light);">
+        <div class="container" style="text-align: center;">
+            <h2>Try AdTrack Pro Right Now</h2>
+            <p style="margin-bottom: 30px;">Access our live demo system with sample data</p>
+            
+            <div style="background: white; padding: 30px; border-radius: 8px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                <h3>Demo Access</h3>
+                <p><strong>URL:</strong> <a href="https://web-production-569fe.up.railway.app/" target="_blank">https://web-production-569fe.up.railway.app/</a></p>
+                <p><strong>Admin Login:</strong> admin</p>
+                <p><strong>Password:</strong> demo123</p>
+                <br>
+                <a href="https://web-production-569fe.up.railway.app/" target="_blank" class="cta-button">Open Demo</a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+    </script>
+</body>
+</html>
