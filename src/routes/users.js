@@ -22,7 +22,7 @@ router.get('/', requireAdmin, async (req, res) => {
     res.json(users);
   } catch (err) {
     console.error('Error fetching users:', err);
-    res.status(500).json({ error: 'Помилка отримання користувачів' });
+    res.status(500).json({ error: 'Failed to get users' });
   }
 });
 
@@ -39,7 +39,7 @@ router.post('/', requireAdmin, async (req, res) => {
     // Проверка существования пользователя
     const existingUser = await fileDB.getUser(username);
     if (existingUser) {
-      return res.status(400).json({ error: 'Користувач з таким логіном вже існує' });
+      return res.status(400).json({ error: 'Користувач з таким логіном already exists' });
     }
 
     // Хешировать пароль
@@ -64,7 +64,7 @@ router.post('/', requireAdmin, async (req, res) => {
 
   } catch (err) {
     console.error('Error creating user:', err);
-    res.status(500).json({ error: 'Помилка створення користувача' });
+    res.status(500).json({ error: 'Failed to create user' });
   }
 });
 
@@ -76,7 +76,7 @@ router.put('/:id', requireAdmin, async (req, res) => {
 
     const user = await fileDB.read(`users/${id}.json`);
     if (!user) {
-      return res.status(404).json({ error: 'Користувача не знайдено' });
+      return res.status(404).json({ error: 'user not found' });
     }
 
     // Обновить данные
@@ -99,7 +99,7 @@ router.put('/:id', requireAdmin, async (req, res) => {
 
   } catch (err) {
     console.error('Error updating user:', err);
-    res.status(500).json({ error: 'Помилка оновлення користувача' });
+    res.status(500).json({ error: 'Failed to update user' });
   }
 });
 
@@ -121,14 +121,14 @@ router.delete('/:id', requireAdmin, async (req, res) => {
     const deleted = await fileDB.delete(`users/${id}.json`);
     
     if (!deleted) {
-      return res.status(404).json({ error: 'Користувача не знайдено' });
+      return res.status(404).json({ error: 'user not found' });
     }
 
     res.json({ success: true });
 
   } catch (err) {
     console.error('Error deleting user:', err);
-    res.status(500).json({ error: 'Помилка видалення користувача' });
+    res.status(500).json({ error: 'Failed to delete user' });
   }
 });
 

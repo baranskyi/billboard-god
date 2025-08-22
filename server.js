@@ -48,7 +48,7 @@ async function initializeDataDirs() {
   for (const dir of dirs) {
     try {
       await fs.mkdir(dir, { recursive: true });
-      console.log(`📁 Директорія створена: ${dir}`);
+      console.log(`📁 Directory created: ${dir}`);
     } catch (err) {
       console.error(`Error creating directory ${dir}:`, err);
     }
@@ -58,9 +58,9 @@ async function initializeDataDirs() {
   try {
     const dataFiles = await fs.readdir('data/users');
     const hasData = dataFiles.some(file => file.endsWith('.json'));
-    console.log(`💾 Існуючі дані: ${hasData ? 'Знайдено' : 'Відсутні'}`);
+    console.log(`💾 Existing data: ${hasData ? 'Found' : 'Not found'}`);
   } catch {
-    console.log('💾 Існуючі дані: Відсутні');
+    console.log('💾 Existing data: Not found');
   }
 }
 
@@ -78,7 +78,7 @@ async function initializeAdmin() {
       username: 'admin',
       password: await bcrypt.hash(process.env.ADMIN_PASSWORD || 'admin123', 10),
       role: 'admin',
-      name: 'Адміністратор',
+      name: 'Administrator',
       createdAt: new Date().toISOString()
     };
     
@@ -124,32 +124,32 @@ app.get('/demo', (req, res) => {
 // Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  res.status(500).json({ error: 'Щось пішло не так!' });
+  res.status(500).json({ error: 'Something went wrong!' });
 });
 
 // Start server
 async function start() {
-  // Создать автобэкап перед запуском
+  // Create auto-backup before startup
   const backup = new BackupManager();
   await backup.autoBackup();
   
   await initializeDataDirs();
   await initializeAdmin();
   
-  // Настроить периодические бэкапы (каждые 6 часов)
+  // Setup periodic backups (every 6 hours)
   setInterval(async () => {
     try {
       await backup.createBackup();
-      console.log('📦 Автоматический бэкап создан');
+      console.log('📦 Automatic backup created');
     } catch (err) {
-      console.error('⚠️ Ошибка автобэкапа:', err);
+      console.error('⚠️ Auto-backup error:', err);
     }
-  }, 6 * 60 * 60 * 1000); // 6 часов
+  }, 6 * 60 * 60 * 1000); // 6 hours
   
   app.listen(PORT, () => {
-    console.log(`Billboard Tracker запущено на порту ${PORT}`);
-    console.log(`Відкрийте http://localhost:${PORT} у браузері`);
-    console.log(`📦 Автобэкап налаштовано (кожні 6 годин)`);
+    console.log(`Billboard God running on port ${PORT}`);
+    console.log(`Open http://localhost:${PORT} in your browser`);
+    console.log(`📦 Auto-backup configured (every 6 hours)`);
   });
 }
 

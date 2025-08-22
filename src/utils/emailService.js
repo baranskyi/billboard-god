@@ -44,16 +44,16 @@ class EmailService {
       const mailOptions = {
         from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
         to: email,
-        subject: 'Billboard God - Код авторизації',
+        subject: 'Billboard God - Authentication Code',
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2 style="color: #333;">Billboard God</h2>
-            <p>Ваш код для входу в систему:</p>
+            <p>Your login code:</p>
             <div style="background: #f5f5f5; padding: 20px; text-align: center; margin: 20px 0;">
               <h1 style="color: #007bff; font-size: 32px; margin: 0; letter-spacing: 5px;">${code}</h1>
             </div>
-            <p>Код діє протягом 10 хвилин.</p>
-            <p style="color: #666; font-size: 14px;">Якщо ви не запитували цей код, проігноруйте це повідомлення.</p>
+            <p>Code is valid for 10 minutes.</p>
+            <p style="color: #666; font-size: 14px;">If you didn't request this code, please ignore this message.</p>
           </div>
         `
       };

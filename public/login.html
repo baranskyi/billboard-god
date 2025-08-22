@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вхід - Billboard God</title>
+    <title>Login - Billboard God</title>
     <link rel="stylesheet" href="/css/style.css?v=3">
 </head>
 <body class="login-page">
@@ -11,80 +11,80 @@
         <div class="login-box">
             <div class="logo">
                 <h1>Billboard God</h1>
-                <p>Система моніторингу зовнішньої реклами</p>
+                <p>Outdoor Advertising Monitoring System</p>
             </div>
             
-            <!-- Форма ввода email -->
+            <!-- Email input form -->
             <form id="emailForm" class="login-form" style="display: block;">
                 <div class="form-group">
                     <label for="email">Email</label>
                     <input type="email" id="email" name="email" required 
-                           placeholder="Введіть ваш email" autocomplete="email">
+                           placeholder="Enter your email" autocomplete="email">
                 </div>
                 
                 <div id="emailErrorMessage" class="error-message"></div>
                 
                 <button type="submit" class="btn btn-primary btn-block">
-                    <span class="btn-text">Отримати код</span>
+                    <span class="btn-text">Get Code</span>
                     <span class="btn-loading" style="display:none;">
-                        <span class="spinner"></span> Відправка...
+                        <span class="spinner"></span> Sending...
                     </span>
                 </button>
                 
                 <div class="auth-links">
-                    <a href="#" id="showRegisterForm">Немає аккаунту? Зареєструватися</a>
+                    <a href="#" id="showRegisterForm">Don't have an account? Register</a>
                 </div>
             </form>
 
-            <!-- Форма ввода кода -->
+            <!-- Code input form -->
             <form id="codeForm" class="login-form" style="display: none;">
                 <div class="form-group">
-                    <label for="code">Код з email</label>
+                    <label for="code">Code from email</label>
                     <input type="text" id="code" name="code" required maxlength="6"
-                           placeholder="Введіть 6-значний код" autocomplete="one-time-code"
+                           placeholder="Enter 6-digit code" autocomplete="one-time-code"
                            pattern="[0-9]{6}">
                 </div>
                 
                 <div id="codeErrorMessage" class="error-message"></div>
                 
                 <button type="submit" class="btn btn-primary btn-block">
-                    <span class="btn-text">Увійти</span>
+                    <span class="btn-text">Login</span>
                     <span class="btn-loading" style="display:none;">
-                        <span class="spinner"></span> Вхід...
+                        <span class="spinner"></span> Logging in...
                     </span>
                 </button>
                 
                 <div class="auth-links">
-                    <a href="#" id="backToEmail">← Повернутися до вводу email</a>
-                    <a href="#" id="resendCode">Відправити код повторно</a>
+                    <a href="#" id="backToEmail">← Back to email input</a>
+                    <a href="#" id="resendCode">Resend code</a>
                 </div>
             </form>
 
-            <!-- Форма регистрации -->
+            <!-- Registration form -->
             <form id="registerForm" class="login-form" style="display: none;">
                 <div class="form-group">
                     <label for="regEmail">Email</label>
                     <input type="email" id="regEmail" name="email" required 
-                           placeholder="Введіть ваш email" autocomplete="email">
+                           placeholder="Enter your email" autocomplete="email">
                 </div>
                 
                 <div class="form-group">
-                    <label for="regName">Ім'я</label>
+                    <label for="regName">Name</label>
                     <input type="text" id="regName" name="name" required 
-                           placeholder="Введіть ваше ім'я" autocomplete="name">
+                           placeholder="Enter your name" autocomplete="name">
                 </div>
                 
                 <div id="registerErrorMessage" class="error-message"></div>
                 
                 <button type="submit" class="btn btn-primary btn-block">
-                    <span class="btn-text">Зареєструватися</span>
+                    <span class="btn-text">Register</span>
                     <span class="btn-loading" style="display:none;">
-                        <span class="spinner"></span> Реєстрація...
+                        <span class="spinner"></span> Registering...
                     </span>
                 </button>
                 
                 <div class="auth-links">
-                    <a href="#" id="showLoginForm">Вже є аккаунт? Увійти</a>
+                    <a href="#" id="showLoginForm">Already have an account? Login</a>
                 </div>
             </form>
         </div>
@@ -93,7 +93,7 @@
     <script>
         let currentEmail = '';
 
-        // Переключение между формами
+        // Form switching
         document.getElementById('showRegisterForm').addEventListener('click', (e) => {
             e.preventDefault();
             document.getElementById('emailForm').style.display = 'none';
@@ -112,7 +112,7 @@
             document.getElementById('emailForm').style.display = 'block';
         });
 
-        // Отправка кода на email
+        // Send code to email
         document.getElementById('emailForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -124,7 +124,7 @@
             
             currentEmail = form.email.value;
             
-            // Показать загрузку
+            // Show loading
             btnText.style.display = 'none';
             btnLoading.style.display = 'inline-block';
             submitBtn.disabled = true;
@@ -144,26 +144,26 @@
                 const data = await response.json();
                 
                 if (response.ok && data.success) {
-                    // Переключиться на форму ввода кода
+                    // Switch to code input form
                     document.getElementById('emailForm').style.display = 'none';
                     document.getElementById('codeForm').style.display = 'block';
                     document.getElementById('code').focus();
                 } else {
-                    // Показать ошибку
-                    errorMsg.textContent = data.error || 'Помилка відправки коду';
+                    // Show error
+                    errorMsg.textContent = data.error || 'Failed to send code';
                 }
                 
             } catch (err) {
-                errorMsg.textContent = 'Помилка з\'єднання з сервером';
+                errorMsg.textContent = 'Server connection error';
             } finally {
-                // Вернуть кнопку в исходное состояние
+                // Reset button state
                 btnText.style.display = 'inline-block';
                 btnLoading.style.display = 'none';
                 submitBtn.disabled = false;
             }
         });
 
-        // Вход по коду
+        // Login with code
         document.getElementById('codeForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -173,7 +173,7 @@
             const btnLoading = submitBtn.querySelector('.btn-loading');
             const errorMsg = document.getElementById('codeErrorMessage');
             
-            // Показать загрузку
+            // Show loading
             btnText.style.display = 'none';
             btnLoading.style.display = 'inline-block';
             submitBtn.disabled = true;
@@ -194,24 +194,24 @@
                 const data = await response.json();
                 
                 if (response.ok && data.success) {
-                    // Успешный вход - перенаправить
+                    // Successful login - redirect
                     window.location.href = '/';
                 } else {
-                    // Показать ошибку
-                    errorMsg.textContent = data.error || 'Помилка входу';
+                    // Show error
+                    errorMsg.textContent = data.error || 'Login failed';
                 }
                 
             } catch (err) {
-                errorMsg.textContent = 'Помилка з\'єднання з сервером';
+                errorMsg.textContent = 'Server connection error';
             } finally {
-                // Вернуть кнопку в исходное состояние
+                // Reset button state
                 btnText.style.display = 'inline-block';
                 btnLoading.style.display = 'none';
                 submitBtn.disabled = false;
             }
         });
 
-        // Повторная отправка кода
+        // Resend code
         document.getElementById('resendCode').addEventListener('click', async (e) => {
             e.preventDefault();
             
@@ -233,21 +233,21 @@
                 
                 if (response.ok && data.success) {
                     errorMsg.style.color = 'green';
-                    errorMsg.textContent = 'Код відправлено повторно';
+                    errorMsg.textContent = 'Code resent successfully';
                     setTimeout(() => {
                         errorMsg.style.color = '';
                         errorMsg.textContent = '';
                     }, 3000);
                 } else {
-                    errorMsg.textContent = data.error || 'Помилка відправки коду';
+                    errorMsg.textContent = data.error || 'Failed to send code';
                 }
                 
             } catch (err) {
-                errorMsg.textContent = 'Помилка з\'єднання з сервером';
+                errorMsg.textContent = 'Server connection error';
             }
         });
 
-        // Регистрация
+        // Registration
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -257,7 +257,7 @@
             const btnLoading = submitBtn.querySelector('.btn-loading');
             const errorMsg = document.getElementById('registerErrorMessage');
             
-            // Показать загрузку
+            // Show loading
             btnText.style.display = 'none';
             btnLoading.style.display = 'inline-block';
             submitBtn.disabled = true;
@@ -278,13 +278,13 @@
                 const data = await response.json();
                 
                 if (response.ok && data.success) {
-                    // Успешная регистрация - переключиться на форму ввода кода
+                    // Successful registration - switch to code input form
                     currentEmail = form.email.value;
                     document.getElementById('registerForm').style.display = 'none';
                     document.getElementById('codeForm').style.display = 'block';
                     document.getElementById('code').focus();
                     
-                    // Показать сообщение об успехе
+                    // Show success message
                     const codeErrorMsg = document.getElementById('codeErrorMessage');
                     codeErrorMsg.style.color = 'green';
                     codeErrorMsg.textContent = data.message;
@@ -293,24 +293,24 @@
                         codeErrorMsg.textContent = '';
                     }, 5000);
                 } else {
-                    // Показать ошибку
-                    errorMsg.textContent = data.error || 'Помилка реєстрації';
+                    // Show error
+                    errorMsg.textContent = data.error || 'Registration failed';
                 }
                 
             } catch (err) {
-                errorMsg.textContent = 'Помилка з\'єднання з сервером';
+                errorMsg.textContent = 'Server connection error';
             } finally {
-                // Вернуть кнопку в исходное состояние
+                // Reset button state
                 btnText.style.display = 'inline-block';
                 btnLoading.style.display = 'none';
                 submitBtn.disabled = false;
             }
         });
 
-        // Автофокус на код при переходе к форме
+        // Auto-focus on code input when switching to form
         const codeInput = document.getElementById('code');
         codeInput.addEventListener('input', (e) => {
-            // Разрешить только цифры
+            // Allow only digits
             e.target.value = e.target.value.replace(/\D/g, '');
         });
     </script>

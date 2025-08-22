@@ -1,23 +1,23 @@
-// Проверка авторизации
+// Authentication check
 function requireAuth(req, res, next) {
   if (!req.session.user) {
-    return res.status(401).json({ error: 'Необхідна авторизація' });
+    return res.status(401).json({ error: 'Authentication required' });
   }
   next();
 }
 
-// Проверка прав администратора
+// Admin rights check
 function requireAdmin(req, res, next) {
   if (!req.session.user || req.session.user.role !== 'admin') {
-    return res.status(403).json({ error: 'Недостатньо прав доступу' });
+    return res.status(403).json({ error: 'Insufficient permissions' });
   }
   next();
 }
 
-// Проверка прав агента
+// Agent rights check
 function requireAgent(req, res, next) {
   if (!req.session.user || req.session.user.role !== 'agent') {
-    return res.status(403).json({ error: 'Доступ тільки для агентів' });
+    return res.status(403).json({ error: 'Agent access only' });
   }
   next();
 }

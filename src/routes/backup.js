@@ -12,11 +12,11 @@ router.post('/create', requireAdmin, async (req, res) => {
     res.json({ 
       success: true, 
       backup: backupFile,
-      message: 'Бэкап успішно створено'
+      message: 'Бэкап successfully created'
     });
   } catch (err) {
     console.error('Backup creation error:', err);
-    res.status(500).json({ error: 'Помилка створення бэкапа' });
+    res.status(500).json({ error: 'Failed to create бэкапа' });
   }
 });
 
@@ -27,7 +27,7 @@ router.get('/list', requireAdmin, async (req, res) => {
     res.json(backups);
   } catch (err) {
     console.error('Backup list error:', err);
-    res.status(500).json({ error: 'Помилка отримання списку бэкапів' });
+    res.status(500).json({ error: 'Failed to get списку бэкапів' });
   }
 });
 
@@ -43,7 +43,7 @@ router.post('/restore', requireAdmin, async (req, res) => {
     await backup.restoreBackup(backupFile);
     res.json({ 
       success: true,
-      message: 'Дані успішно відновлено з бэкапа'
+      message: 'Дані successfully відновлено з бэкапа'
     });
   } catch (err) {
     console.error('Backup restore error:', err);
@@ -65,12 +65,12 @@ router.get('/download/:filename', requireAdmin, (req, res) => {
     res.download(backupPath, filename, (err) => {
       if (err) {
         console.error('Download error:', err);
-        res.status(404).json({ error: 'Файл бэкапа не знайдено' });
+        res.status(404).json({ error: 'Файл бэкапа not found' });
       }
     });
   } catch (err) {
     console.error('Backup download error:', err);
-    res.status(500).json({ error: 'Помилка завантаження бэкапа' });
+    res.status(500).json({ error: 'Failed to upload бэкапа' });
   }
 });
 

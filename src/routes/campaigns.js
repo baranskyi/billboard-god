@@ -20,7 +20,7 @@ router.get('/', requireAuth, async (req, res) => {
     res.json(campaigns);
   } catch (err) {
     console.error('Error fetching campaigns:', err);
-    res.status(500).json({ error: 'Помилка отримання кампаній' });
+    res.status(500).json({ error: 'Failed to get campaigns' });
   }
 });
 
@@ -30,19 +30,19 @@ router.get('/:id', requireAuth, async (req, res) => {
     const campaign = await fileDB.getCampaign(req.params.id);
     
     if (!campaign) {
-      return res.status(404).json({ error: 'Кампанію не знайдено' });
+      return res.status(404).json({ error: 'Campaign not found' });
     }
 
     // Проверить доступ для агентов
     if (req.session.user.role === 'agent' && 
         (!campaign.agents || !campaign.agents.includes(req.session.user.id))) {
-      return res.status(403).json({ error: 'Немає доступу до цієї кампанії' });
+      return res.status(403).json({ error: 'No access to this campaign' });
     }
 
     res.json(campaign);
   } catch (err) {
     console.error('Error fetching campaign:', err);
-    res.status(500).json({ error: 'Помилка отримання кампанії' });
+    res.status(500).json({ error: 'Failed to get campaign' });
   }
 });
 
@@ -52,7 +52,7 @@ router.post('/', requireAdmin, async (req, res) => {
     const { name, startDate, endDate, agents, instructions } = req.body;
     
     if (!name) {
-      return res.status(400).json({ error: 'Введіть назву кампанії' });
+      return res.status(400).json({ error: 'Please enter campaign name' });
     }
 
     const campaign = {
@@ -71,7 +71,7 @@ router.post('/', requireAdmin, async (req, res) => {
 
   } catch (err) {
     console.error('Error creating campaign:', err);
-    res.status(500).json({ error: 'Помилка створення кампанії' });
+    res.status(500).json({ error: 'Failed to create campaign' });
   }
 });
 
@@ -83,7 +83,7 @@ router.put('/:id', requireAdmin, async (req, res) => {
 
     const campaign = await fileDB.getCampaign(id);
     if (!campaign) {
-      return res.status(404).json({ error: 'Кампанію не знайдено' });
+      return res.status(404).json({ error: 'Campaign not found' });
     }
 
     // Обновить поля
@@ -102,7 +102,7 @@ router.put('/:id', requireAdmin, async (req, res) => {
 
   } catch (err) {
     console.error('Error updating campaign:', err);
-    res.status(500).json({ error: 'Помилка оновлення кампанії' });
+    res.status(500).json({ error: 'Failed to update campaign' });
   }
 });
 
@@ -111,25 +111,25 @@ router.delete('/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Проверить есть ли точки в кампании
+    // Проверить есть ли points в кампании
     const points = await fileDB.getPointsByCampaign(id);
     if (points.length > 0) {
       return res.status(400).json({ 
-        error: 'Не можна видалити кампанію з існуючими точками' 
+        error: 'Cannot delete campaign with existing points' 
       });
     }
 
     const deleted = await fileDB.delete(`campaigns/${id}.json`);
     
     if (!deleted) {
-      return res.status(404).json({ error: 'Кампанію не знайдено' });
+      return res.status(404).json({ error: 'Campaign not found' });
     }
 
     res.json({ success: true });
 
   } catch (err) {
     console.error('Error deleting campaign:', err);
-    res.status(500).json({ error: 'Помилка видалення кампанії' });
+    res.status(500).json({ error: 'Failed to delete campaigns' });
   }
 });
 
@@ -140,16 +140,16 @@ router.get('/:id/stats', requireAuth, async (req, res) => {
     const campaign = await fileDB.getCampaign(id);
     
     if (!campaign) {
-      return res.status(404).json({ error: 'Кампанію не знайдено' });
+      return res.status(404).json({ error: 'Campaign not found' });
     }
 
     // Проверить доступ для агентов
     if (req.session.user.role === 'agent' && 
         (!campaign.agents || !campaign.agents.includes(req.session.user.id))) {
-      return res.status(403).json({ error: 'Немає доступу до цієї кампанії' });
+      return res.status(403).json({ error: 'No access to this campaign' });
     }
 
-    // Получить все точки кампании
+    // Получить все points кампании
     const points = await fileDB.getPointsByCampaign(id);
     
     // Подсчитать статистику
@@ -184,7 +184,7 @@ router.get('/:id/stats', requireAuth, async (req, res) => {
 
   } catch (err) {
     console.error('Error fetching campaign stats:', err);
-    res.status(500).json({ error: 'Помилка отримання статистики' });
+    res.status(500).json({ error: 'Failed to get статистики' });
   }
 });
 

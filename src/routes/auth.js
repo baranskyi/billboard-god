@@ -9,13 +9,13 @@ router.post('/send-code', async (req, res) => {
     const { email } = req.body;
     
     if (!email) {
-      return res.status(400).json({ error: 'Введіть email' });
+      return res.status(400).json({ error: 'Please enter email' });
     }
 
-    // Валидация email
+    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: 'Невірний формат email' });
+      return res.status(400).json({ error: 'Invalid email format' });
     }
 
     // Генерируем код
@@ -39,12 +39,12 @@ router.post('/send-code', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Код відправлено на ваш email'
+      message: 'Code sent to your email'
     });
 
   } catch (err) {
     console.error('Send code error:', err);
-    res.status(500).json({ error: 'Помилка відправки коду' });
+    res.status(500).json({ error: 'Failed to send code' });
   }
 });
 
@@ -54,38 +54,38 @@ router.post('/login', async (req, res) => {
     const { email, code } = req.body;
     
     if (!email || !code) {
-      return res.status(400).json({ error: 'Введіть email та код' });
+      return res.status(400).json({ error: 'Please enter email and code' });
     }
 
-    // Получаем сохраненный код
+    // Get saved code
     const authData = await fileDB.getAuthCode(email);
     
     if (!authData) {
-      return res.status(401).json({ error: 'Код не знайдено або застарів' });
+      return res.status(401).json({ error: 'Code not found or expired' });
     }
 
-    // Проверяем срок действия кода
+    // Check code expiration
     const now = new Date();
     const expiresAt = new Date(authData.expiresAt);
     
     if (now > expiresAt) {
       await fileDB.deleteAuthCode(email);
-      return res.status(401).json({ error: 'Код застарів' });
+      return res.status(401).json({ error: 'Code expired' });
     }
 
-    // Проверяем код
+    // Verify code
     if (authData.code !== code) {
-      return res.status(401).json({ error: 'Невірний код' });
+      return res.status(401).json({ error: 'Invalid code' });
     }
 
     // Удаляем использованный код
     await fileDB.deleteAuthCode(email);
 
-    // Ищем пользователя по email
+    // Find user by email
     let user = await fileDB.getUserByEmail(email);
     
     if (!user) {
-      return res.status(401).json({ error: 'Користувач не знайдений. Спочатку зареєструйтесь.' });
+      return res.status(401).json({ error: 'User not found. Please register first.' });
     }
 
     // Сохранить в сессию
@@ -103,7 +103,7 @@ router.post('/login', async (req, res) => {
 
   } catch (err) {
     console.error('Login error:', err);
-    res.status(500).json({ error: 'Помилка авторизації' });
+    res.status(500).json({ error: 'Authentication error' });
   }
 });
 
@@ -113,36 +113,36 @@ router.post('/register', async (req, res) => {
     const { email, name } = req.body;
     
     if (!email || !name) {
-      return res.status(400).json({ error: 'Введіть email та ім\'я' });
+      return res.status(400).json({ error: 'Please enter email and name' });
     }
 
-    // Валидация email
+    // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return res.status(400).json({ error: 'Невірний формат email' });
+      return res.status(400).json({ error: 'Invalid email format' });
     }
 
-    // Проверяем, не существует ли пользователь
+    // Check if user already exists
     const existingUser = await fileDB.getUserByEmail(email);
     if (existingUser) {
-      return res.status(400).json({ error: 'Користувач з таким email вже існує' });
+      return res.status(400).json({ error: 'User with this email already exists' });
     }
 
-    // Создаем нового пользователя
+    // Create new user
     const user = {
       id: fileDB.generateId(),
       email: email,
       name: name,
-      role: 'admin', // Все новые пользователи получают статус администратора
+      role: 'admin', // All new users get admin status
       createdAt: new Date().toISOString()
     };
 
     await fileDB.saveUser(user);
 
-    // Генерируем и отправляем код для входа
+    // Generate and send login code
     let code;
     if (email === 'woofer.ua@gmail.com') {
-      code = '111111'; // Тестовый код
+      code = '111111'; // Test code
     } else {
       code = emailService.generateAuthCode();
     }
@@ -156,29 +156,29 @@ router.post('/register', async (req, res) => {
 
     res.json({
       success: true,
-      message: 'Реєстрація успішна! Код для входу відправлено на ваш email.'
+      message: 'Registration successful! Login code sent to your email.'
     });
 
   } catch (err) {
     console.error('Registration error:', err);
-    res.status(500).json({ error: 'Помилка реєстрації' });
+    res.status(500).json({ error: 'Registration error' });
   }
 });
 
-// Выход из системы
+// Logout
 router.post('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) {
-      return res.status(500).json({ error: 'Помилка виходу' });
+      return res.status(500).json({ error: 'Logout error' });
     }
     res.json({ success: true });
   });
 });
 
-// Проверка текущего пользователя
+// Get current user
 router.get('/me', (req, res) => {
   if (!req.session.user) {
-    return res.status(401).json({ error: 'Не авторизовано' });
+    return res.status(401).json({ error: 'Not authenticated' });
   }
   
   res.json({ user: req.session.user });

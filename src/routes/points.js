@@ -24,7 +24,7 @@ const upload = multer({
   }
 });
 
-// Получить точки кампании
+// Получить points кампании
 router.get('/campaign/:campaignId', requireAuth, async (req, res) => {
   try {
     const { campaignId } = req.params;
@@ -32,17 +32,17 @@ router.get('/campaign/:campaignId', requireAuth, async (req, res) => {
     // Проверить доступ к кампании
     const campaign = await fileDB.getCampaign(campaignId);
     if (!campaign) {
-      return res.status(404).json({ error: 'Кампанію не знайдено' });
+      return res.status(404).json({ error: 'campaign not found' });
     }
 
     if (req.session.user.role === 'agent' && 
         (!campaign.agents || !campaign.agents.includes(req.session.user.id))) {
-      return res.status(403).json({ error: 'Немає доступу до цієї кампанії' });
+      return res.status(403).json({ error: 'Немає доступу до цієї campaigns' });
     }
 
     const points = await fileDB.getPointsByCampaign(campaignId);
     
-    // Для агентов - показывать только их точки
+    // Для агентов - показывать только их points
     if (req.session.user.role === 'agent') {
       const filteredPoints = points.filter(point => point.userId === req.session.user.id);
       return res.json(filteredPoints);
@@ -51,11 +51,11 @@ router.get('/campaign/:campaignId', requireAuth, async (req, res) => {
     res.json(points);
   } catch (err) {
     console.error('Error fetching points:', err);
-    res.status(500).json({ error: 'Помилка отримання точок' });
+    res.status(500).json({ error: 'Failed to get points' });
   }
 });
 
-// Создать новую точку
+// Создать новую point
 router.post('/', requireAuth, upload.array('photos', 3), async (req, res) => {
   try {
     const { campaignId, latitude, longitude, accuracy, type, condition, comment } = req.body;
@@ -68,12 +68,12 @@ router.post('/', requireAuth, upload.array('photos', 3), async (req, res) => {
     // Проверить доступ к кампании
     const campaign = await fileDB.getCampaign(campaignId);
     if (!campaign) {
-      return res.status(404).json({ error: 'Кампанію не знайдено' });
+      return res.status(404).json({ error: 'campaign not found' });
     }
 
     if (req.session.user.role === 'agent' && 
         (!campaign.agents || !campaign.agents.includes(req.session.user.id))) {
-      return res.status(403).json({ error: 'Немає доступу до цієї кампанії' });
+      return res.status(403).json({ error: 'Немає доступу до цієї campaigns' });
     }
 
     // Валидация состояния
@@ -82,7 +82,7 @@ router.post('/', requireAuth, upload.array('photos', 3), async (req, res) => {
       return res.status(400).json({ error: 'Невірний стан конструкції' });
     }
 
-    // Создать точку
+    // Создать point
     const point = {
       campaignId,
       userId: req.session.user.id,
@@ -97,7 +97,7 @@ router.post('/', requireAuth, upload.array('photos', 3), async (req, res) => {
       createdAt: new Date().toISOString()
     };
 
-    // Сохранить точку чтобы получить ID
+    // Сохранить point чтобы получить ID
     const savedPoint = await fileDB.savePoint(campaignId, point);
 
     // Обработать и сохранить фотографии
@@ -122,7 +122,7 @@ router.post('/', requireAuth, upload.array('photos', 3), async (req, res) => {
         savedPoint.photos.push(`/uploads/${campaignId}/${savedPoint.id}/${filename}`);
       }
 
-      // Обновить точку с фотографиями
+      // Обновить point с фотографиями
       await fileDB.savePoint(campaignId, savedPoint);
     }
 
@@ -130,23 +130,23 @@ router.post('/', requireAuth, upload.array('photos', 3), async (req, res) => {
 
   } catch (err) {
     console.error('Error creating point:', err);
-    res.status(500).json({ error: 'Помилка створення точки' });
+    res.status(500).json({ error: 'Failed to create points' });
   }
 });
 
-// Обновить точку
+// Обновить point
 router.put('/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const { campaignId, type, condition, comment } = req.body;
 
     if (!campaignId) {
-      return res.status(400).json({ error: 'Не вказано кампанію' });
+      return res.status(400).json({ error: 'Не вказано campaign' });
     }
 
     const point = await fileDB.getPoint(campaignId, id);
     if (!point) {
-      return res.status(404).json({ error: 'Точку не знайдено' });
+      return res.status(404).json({ error: 'point not found' });
     }
 
     // Проверить права (только создатель или админ)
@@ -167,23 +167,23 @@ router.put('/:id', requireAuth, async (req, res) => {
 
   } catch (err) {
     console.error('Error updating point:', err);
-    res.status(500).json({ error: 'Помилка оновлення точки' });
+    res.status(500).json({ error: 'Failed to update points' });
   }
 });
 
-// Удалить точку
+// Удалить point
 router.delete('/:id', requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const { campaignId } = req.query;
 
     if (!campaignId) {
-      return res.status(400).json({ error: 'Не вказано кампанію' });
+      return res.status(400).json({ error: 'Не вказано campaign' });
     }
 
     const point = await fileDB.getPoint(campaignId, id);
     if (!point) {
-      return res.status(404).json({ error: 'Точку не знайдено' });
+      return res.status(404).json({ error: 'point not found' });
     }
 
     // Проверить права (только создатель или админ)
@@ -201,17 +201,17 @@ router.delete('/:id', requireAuth, async (req, res) => {
       }
     }
 
-    // Удалить точку
+    // Удалить point
     await fileDB.deletePoint(campaignId, id);
     res.json({ success: true });
 
   } catch (err) {
     console.error('Error deleting point:', err);
-    res.status(500).json({ error: 'Помилка видалення точки' });
+    res.status(500).json({ error: 'Failed to delete points' });
   }
 });
 
-// Получить все точки для карты (админ)
+// Получить все points для карты (админ)
 router.get('/map', requireAuth, async (req, res) => {
   try {
     if (req.session.user.role !== 'admin') {
@@ -252,7 +252,7 @@ router.get('/map', requireAuth, async (req, res) => {
 
   } catch (err) {
     console.error('Error fetching map points:', err);
-    res.status(500).json({ error: 'Помилка отримання точок для карти' });
+    res.status(500).json({ error: 'Failed to get points для карти' });
   }
 });
 
