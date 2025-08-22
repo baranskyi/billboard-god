@@ -35,16 +35,11 @@
                     <a href="#" id="showRegisterForm">Don't have an account? Register</a>
                 </div>
                 
-                <!-- Test account hint -->
-                <div class="test-account-hint" style="background: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px; padding: 15px; margin-top: 20px; text-align: center;">
-                    <h4 style="margin: 0 0 10px 0; color: #1976d2;">🧪 Test Account</h4>
-                    <p style="margin: 0 0 10px 0; color: #1565c0; font-size: 14px;">
-                        <strong>Email:</strong> woofer.ua@gmail.com<br>
-                        <strong>Code:</strong> 111111
-                    </p>
-                    <button type="button" id="useTestAccount" class="btn btn-secondary" style="font-size: 12px; padding: 5px 15px;">
-                        Use Test Account
-                    </button>
+                <!-- Test login link -->
+                <div style="text-align: center; margin-top: 20px;">
+                    <a href="#" id="testLoginLink" style="color: #007bff; text-decoration: none; font-size: 14px; padding: 10px; border: 1px solid #007bff; border-radius: 4px; display: inline-block;">
+                        🧪 Test Login (woofer.ua@gmail.com)
+                    </a>
                 </div>
             </form>
 
@@ -112,26 +107,56 @@
             document.getElementById('registerForm').style.display = 'block';
         });
 
-        // Test account quick login
-        document.getElementById('useTestAccount').addEventListener('click', (e) => {
+        // Test login link
+        document.getElementById('testLoginLink').addEventListener('click', async (e) => {
             e.preventDefault();
             
-            // Fill email field and trigger send code
-            document.getElementById('email').value = 'woofer.ua@gmail.com';
+            // Set test email
             currentEmail = 'woofer.ua@gmail.com';
             
-            // Switch to code form
-            document.getElementById('emailForm').style.display = 'none';
-            document.getElementById('codeForm').style.display = 'block';
-            
-            // Pre-fill code
-            document.getElementById('code').value = '111111';
-            document.getElementById('code').focus();
-            
-            // Show success message
-            const codeErrorMsg = document.getElementById('codeErrorMessage');
-            codeErrorMsg.style.color = 'green';
-            codeErrorMsg.textContent = '✅ Test account ready! Click Login to continue.';
+            try {
+                // First, send code for test account
+                const sendCodeResponse = await fetch('/api/auth/send-code', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'woofer.ua@gmail.com'
+                    })
+                });
+                
+                if (!sendCodeResponse.ok) {
+                    throw new Error('Failed to send code');
+                }
+                
+                // Then login with the test code
+                const loginResponse = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'woofer.ua@gmail.com',
+                        code: '111111'
+                    })
+                });
+                
+                const data = await loginResponse.json();
+                
+                if (loginResponse.ok && data.success) {
+                    // Successful login - redirect
+                    window.location.href = '/';
+                } else {
+                    // Show error
+                    const errorMsg = document.getElementById('emailErrorMessage');
+                    errorMsg.textContent = data.error || 'Test login failed';
+                }
+                
+            } catch (err) {
+                const errorMsg = document.getElementById('emailErrorMessage');
+                errorMsg.textContent = 'Connection error: ' + err.message;
+            }
         });
 
         document.getElementById('showLoginForm').addEventListener('click', (e) => {
