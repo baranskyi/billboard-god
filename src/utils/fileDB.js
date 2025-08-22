@@ -78,11 +78,43 @@ class FileDB {
     return null;
   }
 
+  async getUserByEmail(email) {
+    const users = await this.list('users');
+    for (const userFile of users) {
+      const user = await this.read(`users/${userFile}`);
+      if (user && user.email === email) {
+        return user;
+      }
+    }
+    return null;
+  }
+
   async saveUser(user) {
     if (!user.id) {
       user.id = this.generateId();
     }
     return await this.write(`users/${user.id}.json`, user);
+  }
+
+  // Методы для работы с кодами авторизации
+  async saveAuthCode(email, code) {
+    const authData = {
+      email,
+      code,
+      createdAt: new Date().toISOString(),
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString() // 10 минут
+    };
+    return await this.write(`auth-codes/${email.replace('@', '_at_').replace('.', '_dot_')}.json`, authData);
+  }
+
+  async getAuthCode(email) {
+    const filename = email.replace('@', '_at_').replace('.', '_dot_');
+    return await this.read(`auth-codes/${filename}.json`);
+  }
+
+  async deleteAuthCode(email) {
+    const filename = email.replace('@', '_at_').replace('.', '_dot_');
+    return await this.delete(`auth-codes/${filename}.json`);
   }
 
   // Методы для работы с кампаниями

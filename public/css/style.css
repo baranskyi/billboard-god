@@ -532,6 +532,92 @@ table tr:hover {
 
 
 
+/* Стили для новой системы авторизации */
+.auth-links {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.auth-links a {
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.auth-links a:hover {
+    text-decoration: underline;
+}
+
+#code {
+    text-align: center;
+    letter-spacing: 5px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.success-message {
+    color: var(--success-color);
+    background: rgba(39, 174, 96, 0.1);
+    border: 1px solid rgba(39, 174, 96, 0.3);
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 10px;
+    }
+    
+    .header {
+        padding: 10px 0;
+    }
+    
+    .header .container {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .nav {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .campaign-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .point-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .login-box {
+        margin: 20px 10px;
+        padding: 30px 20px;
+    }
+    
+    .modal-content {
+        margin: 20px;
+        max-height: calc(100vh - 40px);
+    }
+    
+    .form-row {
+        flex-direction: column;
+    }
+    
+    .form-row .form-group {
+        margin-right: 0;
+        margin-bottom: 15px;
+    }
+}
+
 /* Утилиты */
 .text-center { text-align: center; }
 .text-right { text-align: right; }
