@@ -8,7 +8,8 @@
     "dev": "nodemon server.js",
     "backup": "node scripts/backup.js create",
     "backup:list": "node scripts/backup.js list",
-    "backup:restore": "node scripts/backup.js restore"
+    "backup:restore": "node scripts/backup.js restore",
+    "test:email": "node test-email.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",

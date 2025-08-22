@@ -111,7 +111,7 @@ router.delete('/:id', requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     
-    // Проверить есть ли points в кампании
+         // Check if campaign has points
     const points = await fileDB.getPointsByCampaign(id);
     if (points.length > 0) {
       return res.status(400).json({ 
@@ -129,7 +129,7 @@ router.delete('/:id', requireAdmin, async (req, res) => {
 
   } catch (err) {
     console.error('Error deleting campaign:', err);
-    res.status(500).json({ error: 'Failed to delete campaigns' });
+         res.status(500).json({ error: 'Failed to delete campaign' });
   }
 });
 
@@ -149,7 +149,7 @@ router.get('/:id/stats', requireAuth, async (req, res) => {
       return res.status(403).json({ error: 'No access to this campaign' });
     }
 
-    // Получить все points кампании
+         // Get all campaign points
     const points = await fileDB.getPointsByCampaign(id);
     
     // Подсчитать статистику
@@ -184,7 +184,7 @@ router.get('/:id/stats', requireAuth, async (req, res) => {
 
   } catch (err) {
     console.error('Error fetching campaign stats:', err);
-    res.status(500).json({ error: 'Failed to get статистики' });
+         res.status(500).json({ error: 'Failed to get statistics' });
   }
 });
 
